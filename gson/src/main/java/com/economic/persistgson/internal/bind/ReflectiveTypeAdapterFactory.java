@@ -122,7 +122,7 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           throws IOException, IllegalAccessException {
         Object fieldValue = field.get(value);
         TypeAdapter t = jsonAdapterPresent ? typeAdapter
-            : new com.economic.persistgson.internal.bind.TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
+            : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
         t.write(writer, fieldValue);
       }
       @Override
