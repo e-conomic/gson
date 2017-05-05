@@ -93,7 +93,6 @@ class PersistReflectiveTypeAdapterFactory(constructorConstructor: ConstructorCon
 
         private fun writeValueToBoundField(boundField: BoundField, value: T?, out: JsonWriter) {
             if (boundField.writeField(value)) {
-                out.name(boundField.name)
                 boundField.write(out, value)
             }
         }

@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.
@@ -123,17 +124,30 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           throws IOException, IllegalAccessException {
         if (value instanceof PersistObject) {
           if (this.name.equals("persistMap")) {
-            for (persistMapKey : value.persistMap.keys) {
-
-            }
+              Map<String, Object> persistMap = ((PersistObject) value).getPersistMap();
+              Set<String> keySet = ((PersistObject) value).getPersistMap().keySet();
+              for (String key : keySet) {
+                  writer.name(key);
+                  Object mapValue = persistMap.get(key);
+                  TypeAdapter t = context.getAdapter(TypeToken.get(mapValue.getClass()).getRawType());
+                  t.write(writer, mapValue);
+              }
+          } else {
+              writer.name(this.name);
+              Object fieldValue = field.get(value);
+              TypeAdapter t = jsonAdapterPresent ? typeAdapter
+                      : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
+              t.write(writer, fieldValue);
           }
+        } else {
+            writer.name(this.name);
+            Object fieldValue = field.get(value);
+            TypeAdapter t = jsonAdapterPresent ? typeAdapter
+                    : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
+            t.write(writer, fieldValue);
         }
-
-        Object fieldValue = field.get(value);
-        TypeAdapter t = jsonAdapterPresent ? typeAdapter
-            : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
-        t.write(writer, fieldValue);
       }
+
       @Override
       public void read(JsonReader reader, Object value)
           throws IOException, IllegalAccessException {
