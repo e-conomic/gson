@@ -31,10 +31,10 @@ class PersistReflectiveTypeAdapterFactory(constructorConstructor: ConstructorCon
         }
 
         val constructor = constructorConstructor.get(type)
-        return Adapter(constructor, getBoundFields(gson, type, raw))
+        return Adapter(gson, constructor, getBoundFields(gson, type, raw))
     }
 
-    class Adapter<T> internal constructor(private val constructor: ObjectConstructor<T>, private val boundFields: Map<String, ReflectiveTypeAdapterFactory.BoundField>) : TypeAdapter<T>() {
+    class Adapter<T> internal constructor(private val context: Gson, private val constructor: ObjectConstructor<T>, private val boundFields: Map<String, ReflectiveTypeAdapterFactory.BoundField>) : TypeAdapter<T>() {
 
         @Throws(IOException::class)
         override fun read(`in`: JsonReader): T? {
@@ -82,16 +82,20 @@ class PersistReflectiveTypeAdapterFactory(constructorConstructor: ConstructorCon
             out.beginObject()
             try {
                 for (boundField in boundFields.values) {
-                    if (boundField.writeField(value)) {
-                        out.name(boundField.name)
-                        boundField.write(out, value)
-                    }
+                    writeValueToBoundField(boundField, value, out)
                 }
             } catch (e: IllegalAccessException) {
                 throw AssertionError(e)
             }
 
             out.endObject()
+        }
+
+        private fun writeValueToBoundField(boundField: BoundField, value: T?, out: JsonWriter) {
+            if (boundField.writeField(value)) {
+                out.name(boundField.name)
+                boundField.write(out, value)
+            }
         }
     }
 }

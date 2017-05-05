@@ -20,6 +20,7 @@ import com.economic.persistgson.FieldNamingStrategy;
 import com.economic.persistgson.Gson;
 import com.economic.persistgson.TypeAdapter;
 import com.economic.persistgson.internal.ConstructorConstructor;
+import com.economic.persistgson.persist.PersistObject;
 import com.economic.persistgson.stream.JsonReader;
 import com.economic.persistgson.stream.JsonToken;
 import com.economic.persistgson.JsonSyntaxException;
@@ -120,6 +121,14 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       @Override
       public void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
+        if (value instanceof PersistObject) {
+          if (this.name.equals("persistMap")) {
+            for (persistMapKey : value.persistMap.keys) {
+
+            }
+          }
+        }
+
         Object fieldValue = field.get(value);
         TypeAdapter t = jsonAdapterPresent ? typeAdapter
             : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
