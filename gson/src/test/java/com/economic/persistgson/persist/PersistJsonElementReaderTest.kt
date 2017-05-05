@@ -14,8 +14,7 @@ class PersistJsonElementReaderTest : TestCase() {
 
     data class Customer(var customerNumber: Int? = null,
                         var customerContact: List<CustomerContact>? = null,
-                        override val persistMap: MutableMap<String, Any> = mutableMapOf()) : PersistObject {
-    }
+                        override val persistMap: MutableMap<String, Any> = mutableMapOf()) : PersistObject
 
     data class CustomerContact(var contactName: String? = null,
                                var details: List<ContactDetails>? = null,
@@ -28,6 +27,7 @@ class PersistJsonElementReaderTest : TestCase() {
         val jsonString = "{ \"customerNumber\": 1, \"unknownProperty\": 12, \"balance\": 123, \"demo\": true, \"customerContact\": [ { \"id\": 12345, \"contactName\": \"John Doe\", \"phones\": { \"home\": \"800-123-4567\", \"mobile\": \"877-123-1234\" }, \"creationDate\": \"1980-01-02\", \"email\": [ \"jd@example.com\", \"jd@example.org\" ], \"details\": [ { \"contactDetails\": \"sadasdsadadasdasd\" }, { \"contactDetails\": \"sadasdsadadasdasd\" }, { \"hello\": \"there!\", \"contactDetails\": \"sadasdsadadasdasd\" } ], \"emergencyContacts\": [ { \"name\": \"Jane Doe\", \"phone\": \"888-555-1212\", \"relationship\": \"spouse\" }, { \"name\": \"Justin Doe\", \"phone\": \"877-123-1212\", \"relationship\": \"parent\" } ] }, { \"id\": 12345, \"contactName\": \"John Doe\", \"phones\": { \"home\": \"800-123-4567\", \"mobile\": \"877-123-1234\" }, \"creationDate\": \"1980-01-02\", \"email\": [ \"jd@example.com\", \"jd@example.org\" ], \"details\": [ { \"contactDetails\": \"sadasdsadadasdasd\" }, { \"contactDetails\": \"sadasdsadadasdasd\" }, { \"hello\": \"there!\", \"contactDetails\": \"sadasdsadadasdasd\" } ], \"emergencyContacts\": [ { \"name\": \"Jane Doe\", \"phone\": \"888-555-1212\", \"relationship\": \"spouse\" }, { \"name\": \"Justin Doe\", \"phone\": \"877-123-1212\", \"relationship\": \"parent\" } ] } ], \"layout\": [ { \"layoutNumber\": 21, \"someOtherProperty\": [ { \"name\": \"safa\" }, { \"name\": \"safa\" } ] }, { \"layoutNumber\": 21, \"someOtherProperty\": [ { \"name\": \"safa\" }, { \"name\": \"safa\" } ] } ] }"
 
         val customer = Gson().create<Customer>(jsonString)
+
 
     }
 

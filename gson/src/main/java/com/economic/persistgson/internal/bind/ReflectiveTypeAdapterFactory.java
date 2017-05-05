@@ -133,22 +133,22 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
                   t.write(writer, mapValue);
               }
           } else {
-              writer.name(this.name);
-              Object fieldValue = field.get(value);
-              TypeAdapter t = jsonAdapterPresent ? typeAdapter
-                      : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
-              t.write(writer, fieldValue);
+              writeBoundField(writer, value);
           }
         } else {
+            writeBoundField(writer, value);
+        }
+      }
+
+        private void writeBoundField(JsonWriter writer, Object value) throws IOException, IllegalAccessException {
             writer.name(this.name);
             Object fieldValue = field.get(value);
             TypeAdapter t = jsonAdapterPresent ? typeAdapter
                     : new TypeAdapterRuntimeTypeWrapper(context, typeAdapter, fieldType.getType());
             t.write(writer, fieldValue);
         }
-      }
 
-      @Override
+        @Override
       public void read(JsonReader reader, Object value)
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);

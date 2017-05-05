@@ -34,7 +34,9 @@ class PersistReflectiveTypeAdapterFactory(constructorConstructor: ConstructorCon
         return Adapter(gson, constructor, getBoundFields(gson, type, raw))
     }
 
-    class Adapter<T> internal constructor(private val context: Gson, private val constructor: ObjectConstructor<T>, private val boundFields: Map<String, ReflectiveTypeAdapterFactory.BoundField>) : TypeAdapter<T>() {
+    class Adapter<T> internal constructor(context: Gson, private val constructor: ObjectConstructor<T>, private val boundFields: Map<String, ReflectiveTypeAdapterFactory.BoundField>) : TypeAdapter<T>() {
+
+        val defaultReadAdapter: TypeAdapter<Any> = context.getAdapter(TypeToken.get(Any::class.java).rawType)
 
         @Throws(IOException::class)
         override fun read(`in`: JsonReader): T? {
@@ -53,8 +55,16 @@ class PersistReflectiveTypeAdapterFactory(constructorConstructor: ConstructorCon
                     if (field == null || !field.deserialized) {
                         // if instance is of type PersisObject
                         if (instance is PersistObject) {
-                            val parsedJson = JsonParser().parse(`in`)
-                            instance.persistMap.put(name,parsedJson)
+                            try {
+                                val processedJson = defaultReadAdapter.read(`in`)
+                                if (processedJson != null) {
+                                    instance.persistMap.put(name, processedJson)
+                                } else {
+                                    `in`.skipValue()
+                                }
+                            } catch (exception: Exception) {
+                                throw exception
+                            }
                         } else {
                             `in`.skipValue()
                         }
