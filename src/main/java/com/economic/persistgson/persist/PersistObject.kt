@@ -16,7 +16,7 @@ interface PersistObject {
     companion object {
         /**
          * The [_persistMapReflectiveFieldKey] is a key value that must correspond to the [PersistObject]
-         * field value.
+         * persist map field name.
          * */
         val _persistMapReflectiveFieldKey = "_persistMap"
     }
