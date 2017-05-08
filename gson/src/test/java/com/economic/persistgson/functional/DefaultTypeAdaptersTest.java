@@ -624,7 +624,7 @@ public class DefaultTypeAdaptersTest extends TestCase {
       gson.fromJson("\"abc\"", JsonObject.class);
       fail();
     } catch (JsonSyntaxException expected) {
-      assertEquals("Expected a JsonObject but was JsonPrimitive",
+      assertEquals("Expected a com.economic.persistgson.JsonObject but was com.economic.persistgson.JsonPrimitive",
           expected.getMessage());
     }
   }

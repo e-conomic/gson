@@ -55,7 +55,7 @@ public final class JsonObject extends com.economic.persistgson.JsonElement {
    */
   public void add(String property, com.economic.persistgson.JsonElement value) {
     if (value == null) {
-      value = com.economic.persistgson.JsonNull.INSTANCE;
+      value = JsonNull.INSTANCE;
     }
     members.put(property, value);
   }
