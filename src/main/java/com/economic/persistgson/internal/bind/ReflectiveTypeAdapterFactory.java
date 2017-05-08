@@ -123,9 +123,9 @@ public class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       public void write(JsonWriter writer, Object value)
           throws IOException, IllegalAccessException {
         if (value instanceof PersistObject) {
-          if (this.name.equals("persistMap")) {
-              Map<String, Object> persistMap = ((PersistObject) value).getPersistMap();
-              Set<String> keySet = ((PersistObject) value).getPersistMap().keySet();
+          if (this.name.equals(PersistObject.Companion.get_persistMapReflectiveFieldKey())) {
+              Map<String, Object> persistMap = ((PersistObject) value).get_persistMap();
+              Set<String> keySet = ((PersistObject) value).get_persistMap().keySet();
               for (String key : keySet) {
                   writer.name(key);
                   Object mapValue = persistMap.get(key);

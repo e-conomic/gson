@@ -15,14 +15,14 @@ class PersistModelTest : TestCase() {
 
     data class Customer(var customerNumber: Int? = null,
                         var customerContact: List<CustomerContact>? = null,
-                        override val persistMap: MutableMap<String, Any> = mutableMapOf()) : PersistObject
+                        override val _persistMap: MutableMap<String, Any> = mutableMapOf()) : PersistObject
 
     data class CustomerContact(var contactName: String? = "Generic Name",
                                var details: List<ContactDetails>? = null,
-                               override val persistMap: MutableMap<String, Any> = mutableMapOf()) : PersistObject
+                               override val _persistMap: MutableMap<String, Any> = mutableMapOf()) : PersistObject
 
     data class ContactDetails(@SerializedName("contactDetails") var contactInfo: String? = null,
-                              override val persistMap: MutableMap<String, Any> = mutableMapOf()) : PersistObject
+                              override val _persistMap: MutableMap<String, Any> = mutableMapOf()) : PersistObject
 
     val defaultCustomerJson = "{ \"customerNumber\": 1, \"unknownProperty\": 12, \"balance\": 123, \"demo\": true, \"customerContact\": [ { \"id\": 12345, \"contactName\": \"John Doe\", \"phones\": { \"home\": \"800-123-4567\", \"mobile\": \"877-123-1234\" }, \"creationDate\": \"1980-01-02\", \"email\": [ \"jd@example.com\", \"jd@example.org\" ], \"details\": [ { \"contactDetails\": \"Some contact details\" }, { \"contactDetails\": \"Some contact details\" }, { \"hello\": \"there!\", \"contactDetails\": \"Some contact details\" } ], \"emergencyContacts\": [ { \"name\": \"Jane Doe\", \"phone\": \"888-555-1212\", \"relationship\": \"spouse\" }, { \"name\": \"Justin Doe\", \"phone\": \"877-123-1212\", \"relationship\": \"parent\" } ] }, { \"id\": 12345, \"contactName\": \"John Doe\", \"phones\": { \"home\": \"800-123-4567\", \"mobile\": \"877-123-1234\" }, \"creationDate\": \"1980-01-02\", \"email\": [ \"jd@example.com\", \"jd@example.org\" ], \"details\": [ { \"contactDetails\": \"Some contact details\" }, { \"contactDetails\": \"Some contact details\" }, { \"hello\": \"there!\", \"contactDetails\": \"Some contact details\" } ], \"emergencyContacts\": [ { \"name\": \"Jane Doe\", \"phone\": \"888-555-1212\", \"relationship\": \"spouse\" }, { \"name\": \"Justin Doe\", \"phone\": \"877-123-1212\", \"relationship\": \"parent\" } ] } ], \"layout\": [ { \"layoutNumber\": 21, \"someOtherProperty\": [ { \"name\": \"Michael\" }, { \"name\": \"Michael\" } ] }, { \"layoutNumber\": 21, \"someOtherProperty\": [ { \"name\": \"Michael\" }, { \"name\": \"Michael\" } ] } ] }"
     val gson = Gson()
@@ -31,9 +31,9 @@ class PersistModelTest : TestCase() {
         val customer = gson.create<Customer>(defaultCustomerJson)
 
         Assert.assertNotNull(customer?.customerContact)
-        Assert.assertTrue(customer?.persistMap?.values?.size != 0)
+        Assert.assertTrue(customer?._persistMap?.values?.size != 0)
         Assert.assertEquals(1, customer?.customerNumber)
-        Assert.assertEquals(12.0, customer!!.persistMap["unknownProperty"])
+        Assert.assertEquals(12.0, customer!!._persistMap["unknownProperty"])
     }
 
     fun testWriteModelToJson() {
@@ -41,7 +41,7 @@ class PersistModelTest : TestCase() {
 
         customer.customerNumber = 27
         customer.customerContact = listOf(CustomerContact())
-        customer.persistMap["unknownProperty"] = "hello"
+        customer._persistMap["unknownProperty"] = "hello"
 
         val expectedJson = "{\"customerNumber\":27,\"customerContact\":[{\"contactName\":\"Generic Name\"}],\"unknownProperty\":\"hello\"}"
         val json = gson.toJson(customer)
@@ -70,9 +70,9 @@ class PersistModelTest : TestCase() {
     fun testNestedUnknownPropertyShouldBePresent() {
         val customer = gson.create<Customer>(defaultCustomerJson)
 
-        Assert.assertEquals("there!", customer!!.customerContact!![0].details!![2].persistMap["hello"])
-        Assert.assertEquals("800-123-4567", (customer.customerContact!![0].persistMap["phones"] as Map<*, *>)["home"])
-        Assert.assertEquals("jd@example.com", (customer.customerContact!![0].persistMap["email"] as List<*>)[0])
+        Assert.assertEquals("there!", customer!!.customerContact!![0].details!![2]._persistMap["hello"])
+        Assert.assertEquals("800-123-4567", (customer.customerContact!![0]._persistMap["phones"] as Map<*, *>)["home"])
+        Assert.assertEquals("jd@example.com", (customer.customerContact!![0]._persistMap["email"] as List<*>)[0])
     }
 
     fun testAllPropertiesWithToManyReferenceSetFieldToNil() {
@@ -104,7 +104,7 @@ class PersistModelTest : TestCase() {
 
         Assert.assertNotNull(contactDetails)
         Assert.assertNull(contactDetails?.contactInfo)
-        Assert.assertEquals("Some contact details", contactDetails?.persistMap!!["contactInfo"])
+        Assert.assertEquals("Some contact details", contactDetails?._persistMap!!["contactInfo"])
     }
 }
 

@@ -13,9 +13,17 @@ package com.economic.persistgson.persist
  *
  * */
 interface PersistObject {
+    companion object {
+        /**
+         * The [_persistMapReflectiveFieldKey] is a key value that must correspond to the [PersistObject]
+         * field value.
+         * */
+        val _persistMapReflectiveFieldKey = "_persistMap"
+    }
+
     /**
-     * The [persistMap] is a mutable map that will contain any unknown properties that could not be
+     * The [_persistMap] is a mutable map that will contain any unknown properties that could not be
      * mapped to the Model object
      * */
-    val persistMap: MutableMap<String, Any>
+    val _persistMap: MutableMap<String, Any>
 }

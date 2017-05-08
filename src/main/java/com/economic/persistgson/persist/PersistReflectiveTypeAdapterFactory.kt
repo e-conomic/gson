@@ -11,10 +11,7 @@ import com.economic.persistgson.stream.JsonReader
 import com.economic.persistgson.stream.JsonToken
 import com.economic.persistgson.stream.JsonWriter
 
-import org.json.JSONObject
-
 import java.io.IOException
-import java.util.HashMap
 
 /**
  * Created by Tudor Dragan on 03/05/2017.
@@ -58,7 +55,7 @@ class PersistReflectiveTypeAdapterFactory(constructorConstructor: ConstructorCon
                             try {
                                 val processedJson = defaultReadAdapter.read(`in`)
                                 if (processedJson != null) {
-                                    instance.persistMap.put(name, processedJson)
+                                    instance._persistMap.put(name, processedJson)
                                 } else {
                                     `in`.skipValue()
                                 }
