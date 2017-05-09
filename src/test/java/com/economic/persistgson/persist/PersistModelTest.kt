@@ -14,6 +14,7 @@ import junit.framework.TestCase
 class PersistModelTest : TestCase() {
 
     data class Customer(var customerNumber: Int? = null,
+                        var doubleCustomerNumber: Double? = null,
                         var customerContact: List<CustomerContact>? = null,
                         override val _persistMap: MutableMap<String, Any> = mutableMapOf()) : PersistObject
 
@@ -24,7 +25,7 @@ class PersistModelTest : TestCase() {
     data class ContactDetails(@SerializedName("contactDetails") var contactInfo: String? = null,
                               override val _persistMap: MutableMap<String, Any> = mutableMapOf()) : PersistObject
 
-    val defaultCustomerJson = "{ \"customerNumber\": 1, \"unknownProperty\": 12, \"balance\": 123, \"demo\": true, \"customerContact\": [ { \"id\": 12345, \"contactName\": \"John Doe\", \"phones\": { \"home\": \"800-123-4567\", \"mobile\": \"877-123-1234\" }, \"creationDate\": \"1980-01-02\", \"email\": [ \"jd@example.com\", \"jd@example.org\" ], \"details\": [ { \"contactDetails\": \"Some contact details\" }, { \"contactDetails\": \"Some contact details\" }, { \"hello\": \"there!\", \"contactDetails\": \"Some contact details\" } ], \"emergencyContacts\": [ { \"name\": \"Jane Doe\", \"phone\": \"888-555-1212\", \"relationship\": \"spouse\" }, { \"name\": \"Justin Doe\", \"phone\": \"877-123-1212\", \"relationship\": \"parent\" } ] }, { \"id\": 12345, \"contactName\": \"John Doe\", \"phones\": { \"home\": \"800-123-4567\", \"mobile\": \"877-123-1234\" }, \"creationDate\": \"1980-01-02\", \"email\": [ \"jd@example.com\", \"jd@example.org\" ], \"details\": [ { \"contactDetails\": \"Some contact details\" }, { \"contactDetails\": \"Some contact details\" }, { \"hello\": \"there!\", \"contactDetails\": \"Some contact details\" } ], \"emergencyContacts\": [ { \"name\": \"Jane Doe\", \"phone\": \"888-555-1212\", \"relationship\": \"spouse\" }, { \"name\": \"Justin Doe\", \"phone\": \"877-123-1212\", \"relationship\": \"parent\" } ] } ], \"layout\": [ { \"layoutNumber\": 21, \"someOtherProperty\": [ { \"name\": \"Michael\" }, { \"name\": \"Michael\" } ] }, { \"layoutNumber\": 21, \"someOtherProperty\": [ { \"name\": \"Michael\" }, { \"name\": \"Michael\" } ] } ] }"
+    val defaultCustomerJson = "{\"customerNumber\": 1, \"doubleCustomerNumber\": 2.02, \"unknownProperty\": 12, \"balance\": 123, \"demo\": true, \"customerContact\": [{ \"id\": 12345, \"contactName\": \"John Doe\", \"phones\": { \"home\": \"800-123-4567\", \"mobile\": \"877-123-1234\" }, \"creationDate\": \"1980-01-02\", \"email\": [\"jd@example.com\", \"jd@example.org\"], \"details\": [{ \"contactDetails\": \"Some contact details\" }, { \"contactDetails\": \"Some contact details\" }, { \"hello\": \"there!\", \"contactDetails\": \"Some contact details\" }], \"emergencyContacts\": [{ \"name\": \"Jane Doe\", \"phone\": \"888-555-1212\", \"relationship\": \"spouse\" }, { \"name\": \"Justin Doe\", \"phone\": \"877-123-1212\", \"relationship\": \"parent\" }] }, { \"id\": 12345, \"contactName\": \"John Doe\", \"phones\": { \"home\": \"800-123-4567\", \"mobile\": \"877-123-1234\" }, \"creationDate\": \"1980-01-02\", \"email\": [\"jd@example.com\", \"jd@example.org\"], \"details\": [{ \"contactDetails\": \"Some contact details\" }, { \"contactDetails\": \"Some contact details\" }, { \"hello\": \"there!\", \"contactDetails\": \"Some contact details\" }], \"emergencyContacts\": [{ \"name\": \"Jane Doe\", \"phone\": \"888-555-1212\", \"relationship\": \"spouse\" }, { \"name\": \"Justin Doe\", \"phone\": \"877-123-1212\", \"relationship\": \"parent\" }] }], \"layout\": [{ \"layoutNumber\": 21, \"someOtherProperty\": [{ \"name\": \"Michael\" }, { \"name\": \"Michael\" }] }, { \"layoutNumber\": 21, \"someOtherProperty\": [{ \"name\": \"Michael\" }, { \"name\": \"Michael\" }] }] }"
     val gson = Gson()
 
     fun testReadComplexJson() {
@@ -33,18 +34,27 @@ class PersistModelTest : TestCase() {
         Assert.assertNotNull(customer?.customerContact)
         Assert.assertTrue(customer?._persistMap?.values?.size != 0)
         Assert.assertEquals(1, customer?.customerNumber)
-        Assert.assertEquals(12.0, customer!!._persistMap["unknownProperty"])
+        Assert.assertEquals(12, customer!!._persistMap["unknownProperty"])
     }
 
     fun testWriteModelToJson() {
         val customer = Customer()
 
         customer.customerNumber = 27
+        customer.doubleCustomerNumber = 12.0242
         customer.customerContact = listOf(CustomerContact())
         customer._persistMap["unknownProperty"] = "hello"
 
-        val expectedJson = "{\"customerNumber\":27,\"customerContact\":[{\"contactName\":\"Generic Name\"}],\"unknownProperty\":\"hello\"}"
-        val json = gson.toJson(customer)
+        val expectedJson = mapOf<String, Any>(
+                "customerNumber" to 27,
+                "doubleCustomerNumber" to 12.0242,
+                "customerContact" to arrayListOf(
+                        mapOf("contactName" to "Generic Name")
+                ),
+                "unknownProperty" to "hello"
+                )
+
+        val json = gson.create<Map<String, Any>>(gson.toJson(customer))
 
         Assert.assertEquals(expectedJson, json)
     }
@@ -60,8 +70,9 @@ class PersistModelTest : TestCase() {
         val customer = gson.create<Customer>(defaultCustomerJson)
 
         customer?.customerContact = listOf(CustomerContact(contactName = "Some guy"))
+        customer?.doubleCustomerNumber = 2.0
 
-        val expectedJson = "{\"customerNumber\":1,\"customerContact\":[{\"contactName\":\"Some guy\"}],\"unknownProperty\":12.0,\"balance\":123.0,\"demo\":true,\"layout\":[{\"layoutNumber\":21.0,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]},{\"layoutNumber\":21.0,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]}]}"
+        val expectedJson = "{\"customerNumber\":1,\"doubleCustomerNumber\":2.0,\"customerContact\":[{\"contactName\":\"Some guy\"}],\"unknownProperty\":12,\"balance\":123,\"demo\":true,\"layout\":[{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]},{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]}]}"
         val json = gson.toJson(customer)
 
         Assert.assertEquals(expectedJson, json)
@@ -80,7 +91,7 @@ class PersistModelTest : TestCase() {
 
         customer?.customerContact = null
 
-        val expectedJson = "{\"customerNumber\":1,\"unknownProperty\":12.0,\"balance\":123.0,\"demo\":true,\"layout\":[{\"layoutNumber\":21.0,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]},{\"layoutNumber\":21.0,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]}]}"
+        val expectedJson = "{\"customerNumber\":1,\"doubleCustomerNumber\":2.02,\"unknownProperty\":12,\"balance\":123,\"demo\":true,\"layout\":[{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]},{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]}]}"
         val json = gson.toJson(customer)
 
         Assert.assertEquals(expectedJson, json)
@@ -91,7 +102,7 @@ class PersistModelTest : TestCase() {
 
         customer?.customerContact = customer?.customerContact?.plus(CustomerContact(details = listOf(ContactDetails(contactInfo = "nothing"))))
 
-        val expectedJson = "{\"customerNumber\":1,\"customerContact\":[{\"contactName\":\"John Doe\",\"details\":[{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\",\"hello\":\"there!\"}],\"id\":12345.0,\"phones\":{\"home\":\"800-123-4567\",\"mobile\":\"877-123-1234\"},\"creationDate\":\"1980-01-02\",\"email\":[\"jd@example.com\",\"jd@example.org\"],\"emergencyContacts\":[{\"name\":\"Jane Doe\",\"phone\":\"888-555-1212\",\"relationship\":\"spouse\"},{\"name\":\"Justin Doe\",\"phone\":\"877-123-1212\",\"relationship\":\"parent\"}]},{\"contactName\":\"John Doe\",\"details\":[{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\",\"hello\":\"there!\"}],\"id\":12345.0,\"phones\":{\"home\":\"800-123-4567\",\"mobile\":\"877-123-1234\"},\"creationDate\":\"1980-01-02\",\"email\":[\"jd@example.com\",\"jd@example.org\"],\"emergencyContacts\":[{\"name\":\"Jane Doe\",\"phone\":\"888-555-1212\",\"relationship\":\"spouse\"},{\"name\":\"Justin Doe\",\"phone\":\"877-123-1212\",\"relationship\":\"parent\"}]},{\"contactName\":\"Generic Name\",\"details\":[{\"contactDetails\":\"nothing\"}]}],\"unknownProperty\":12.0,\"balance\":123.0,\"demo\":true,\"layout\":[{\"layoutNumber\":21.0,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]},{\"layoutNumber\":21.0,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]}]}"
+        val expectedJson = "{\"customerNumber\":1,\"doubleCustomerNumber\":2.02,\"customerContact\":[{\"contactName\":\"John Doe\",\"details\":[{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\",\"hello\":\"there!\"}],\"id\":12345,\"phones\":{\"home\":\"800-123-4567\",\"mobile\":\"877-123-1234\"},\"creationDate\":\"1980-01-02\",\"email\":[\"jd@example.com\",\"jd@example.org\"],\"emergencyContacts\":[{\"name\":\"Jane Doe\",\"phone\":\"888-555-1212\",\"relationship\":\"spouse\"},{\"name\":\"Justin Doe\",\"phone\":\"877-123-1212\",\"relationship\":\"parent\"}]},{\"contactName\":\"John Doe\",\"details\":[{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\",\"hello\":\"there!\"}],\"id\":12345,\"phones\":{\"home\":\"800-123-4567\",\"mobile\":\"877-123-1234\"},\"creationDate\":\"1980-01-02\",\"email\":[\"jd@example.com\",\"jd@example.org\"],\"emergencyContacts\":[{\"name\":\"Jane Doe\",\"phone\":\"888-555-1212\",\"relationship\":\"spouse\"},{\"name\":\"Justin Doe\",\"phone\":\"877-123-1212\",\"relationship\":\"parent\"}]},{\"contactName\":\"Generic Name\",\"details\":[{\"contactDetails\":\"nothing\"}]}],\"unknownProperty\":12,\"balance\":123,\"demo\":true,\"layout\":[{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]},{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]}]}"
         val json = gson.toJson(customer)
 
         Assert.assertEquals(expectedJson, json)

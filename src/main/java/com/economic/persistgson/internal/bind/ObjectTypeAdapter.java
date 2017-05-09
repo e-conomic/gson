@@ -24,6 +24,7 @@ import com.economic.persistgson.stream.JsonWriter;
 import com.economic.persistgson.TypeAdapter;
 import com.economic.persistgson.internal.LinkedTreeMap;
 import com.economic.persistgson.reflect.TypeToken;
+import com.google.common.math.DoubleMath;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -76,7 +77,11 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return in.nextString();
 
     case NUMBER:
-      return in.nextDouble();
+      Double value = in.nextDouble();
+      if (DoubleMath.isMathematicalInteger(value)) {
+        return value.intValue();
+      }
+      return value;
 
     case BOOLEAN:
       return in.nextBoolean();
