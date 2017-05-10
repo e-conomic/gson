@@ -31,6 +31,7 @@ import com.google.common.math.DoubleMath;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +91,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
                 "JSON forbids NaN and infinities: " + asDouble);
       }
       if (DoubleMath.isMathematicalInteger(asDouble)) {
-        return (int) asDouble;
+        return (long) asDouble;
       } else {
         return asDouble;
       }

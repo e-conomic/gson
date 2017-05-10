@@ -144,20 +144,20 @@ class PersistModelTest : TestCase() {
         Assert.assertNotNull(customer?.customerContact)
         Assert.assertTrue(customer?._persistMap?.values?.size != 0)
         Assert.assertEquals(1, customer?.customerNumber)
-        Assert.assertEquals(12, customer!!._persistMap["unknownProperty"])
+        Assert.assertEquals(12L, customer!!._persistMap["unknownProperty"])
     }
 
     fun testWriteModelToJson() {
         val customer = Customer()
 
         customer.customerNumber = 27
-        customer.doubleCustomerNumber = 12.0242
+        customer.doubleCustomerNumber = 1234567890.1234567890
         customer.customerContact = listOf(CustomerContact())
         customer._persistMap["unknownProperty"] = "hello"
 
         val expectedJson = mapOf<String, Any>(
-                "customerNumber" to 27,
-                "doubleCustomerNumber" to 12.0242,
+                "customerNumber" to 27L,
+                "doubleCustomerNumber" to 1234567890.1234567890,
                 "customerContact" to arrayListOf(
                         mapOf("contactName" to "Generic Name")
                 ),
@@ -180,13 +180,13 @@ class PersistModelTest : TestCase() {
         val customer = gson.create<Customer>(defaultCustomerJson)
 
         customer?.customerContact = listOf(CustomerContact(contactName = "Some Guy"))
-        customer?.doubleCustomerNumber = 2.021421241
+        customer?.doubleCustomerNumber = 1234567890.000
 
         val expectedCustomerMap = mapOf(
-                "customerNumber" to 1,
-                "doubleCustomerNumber" to 2.021421241,
-                "unknownProperty" to 12,
-                "balance" to 123,
+                "customerNumber" to 1L,
+                "doubleCustomerNumber" to 1234567890L,
+                "unknownProperty" to 12L,
+                "balance" to 123L,
                 "demo" to true,
                 "customerContact" to arrayListOf(
                         mapOf(
@@ -195,7 +195,7 @@ class PersistModelTest : TestCase() {
                 ),
                 "layout" to arrayListOf(
                         mapOf(
-                                "layoutNumber" to 21,
+                                "layoutNumber" to 21L,
                                 "someOtherProperty" to arrayListOf(
                                         mapOf(
                                                 "name" to "Michael"
@@ -206,7 +206,7 @@ class PersistModelTest : TestCase() {
                                 )
                         ),
                         mapOf(
-                                "layoutNumber" to 21,
+                                "layoutNumber" to 21L,
                                 "someOtherProperty" to arrayListOf(
                                         mapOf(
                                                 "name" to "Michael"
@@ -237,14 +237,14 @@ class PersistModelTest : TestCase() {
         customer?.customerContact = null
 
         val expectedCustomerMap = mapOf(
-                "customerNumber" to 1,
+                "customerNumber" to 1L,
                 "doubleCustomerNumber" to 2.02,
-                "unknownProperty" to 12,
-                "balance" to 123,
+                "unknownProperty" to 12L,
+                "balance" to 123L,
                 "demo" to true,
                 "layout" to arrayListOf(
                         mapOf(
-                                "layoutNumber" to 21,
+                                "layoutNumber" to 21L,
                                 "someOtherProperty" to arrayListOf(
                                         mapOf(
                                                 "name" to "Michael"
@@ -255,7 +255,7 @@ class PersistModelTest : TestCase() {
                                 )
                         ),
                         mapOf(
-                                "layoutNumber" to 21,
+                                "layoutNumber" to 21L,
                                 "someOtherProperty" to arrayListOf(
                                         mapOf(
                                                 "name" to "Michael"
@@ -278,14 +278,14 @@ class PersistModelTest : TestCase() {
         customer?.customerContact = customer?.customerContact?.plus(CustomerContact(details = listOf(ContactDetails(contactInfo = "nothing"))))
 
         val expectedCustomerMap = mapOf(
-                "customerNumber" to 1,
+                "customerNumber" to 1L,
                 "doubleCustomerNumber" to 2.02,
-                "unknownProperty" to 12,
-                "balance" to 123,
+                "unknownProperty" to 12L,
+                "balance" to 123L,
                 "demo" to true,
                 "customerContact" to arrayListOf(
                         mapOf(
-                                "id" to 12345,
+                                "id" to 12345L,
                                 "contactName" to "John Doe",
                                 "phones" to mapOf(
                                         "home" to "800-123-4567",
@@ -322,7 +322,7 @@ class PersistModelTest : TestCase() {
                                 )
                         ),
                         mapOf(
-                                "id" to 12345,
+                                "id" to 12345L,
                                 "contactName" to "John Doe",
                                 "phones" to mapOf(
                                         "home" to "800-123-4567",
@@ -369,7 +369,7 @@ class PersistModelTest : TestCase() {
                 ),
                 "layout" to arrayListOf(
                         mapOf(
-                                "layoutNumber" to 21,
+                                "layoutNumber" to 21L,
                                 "someOtherProperty" to arrayListOf(
                                         mapOf(
                                                 "name" to "Michael"
@@ -380,7 +380,7 @@ class PersistModelTest : TestCase() {
                                 )
                         ),
                         mapOf(
-                                "layoutNumber" to 21,
+                                "layoutNumber" to 21L,
                                 "someOtherProperty" to arrayListOf(
                                         mapOf(
                                                 "name" to "Michael"
