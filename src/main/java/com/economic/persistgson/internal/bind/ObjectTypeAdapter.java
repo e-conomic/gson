@@ -17,6 +17,8 @@
 package com.economic.persistgson.internal.bind;
 
 import com.economic.persistgson.Gson;
+import com.economic.persistgson.JsonElement;
+import com.economic.persistgson.JsonParser;
 import com.economic.persistgson.TypeAdapterFactory;
 import com.economic.persistgson.stream.JsonReader;
 import com.economic.persistgson.stream.JsonToken;
@@ -24,9 +26,11 @@ import com.economic.persistgson.stream.JsonWriter;
 import com.economic.persistgson.TypeAdapter;
 import com.economic.persistgson.internal.LinkedTreeMap;
 import com.economic.persistgson.reflect.TypeToken;
+import com.economic.persistgson.stream.MalformedJsonException;
 import com.google.common.math.DoubleMath;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +51,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   };
 
   private final Gson gson;
+  private final JsonParser jsonParser = new JsonParser();
 
   ObjectTypeAdapter(Gson gson) {
     this.gson = gson;
@@ -77,12 +82,18 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       return in.nextString();
 
     case NUMBER:
-      Double value = in.nextDouble();
-      if (DoubleMath.isMathematicalInteger(value)) {
-        return value.intValue();
+      JsonElement element = jsonParser.parse(in);
+      String elementString = element.getAsString();
+      double asDouble = Double.parseDouble(elementString); // don't catch this NumberFormatException.
+      if ((Double.isNaN(asDouble) || Double.isInfinite(asDouble))) {
+        throw new com.economic.persistgson.stream.MalformedJsonException(
+                "JSON forbids NaN and infinities: " + asDouble);
       }
-      return value;
-
+      if (DoubleMath.isMathematicalInteger(asDouble)) {
+        return (int) asDouble;
+      } else {
+        return asDouble;
+      }
     case BOOLEAN:
       return in.nextBoolean();
 

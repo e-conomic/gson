@@ -2,9 +2,12 @@ package com.economic.persistgson.persist
 
 import com.economic.ecmfoundation.extensions.create
 import com.economic.persistgson.Gson
+import com.economic.persistgson.GsonBuilder
 import com.economic.persistgson.annotations.SerializedName
 import junit.framework.Assert
 import junit.framework.TestCase
+import org.apache.commons.lang3.mutable.Mutable
+import java.util.*
 
 /**
  * Created by Tudor Dragan on 04/05/2017.
@@ -26,7 +29,114 @@ class PersistModelTest : TestCase() {
                               override val _persistMap: MutableMap<String, Any> = mutableMapOf()) : PersistObject
 
     val defaultCustomerJson = "{\"customerNumber\": 1, \"doubleCustomerNumber\": 2.02, \"unknownProperty\": 12, \"balance\": 123, \"demo\": true, \"customerContact\": [{ \"id\": 12345, \"contactName\": \"John Doe\", \"phones\": { \"home\": \"800-123-4567\", \"mobile\": \"877-123-1234\" }, \"creationDate\": \"1980-01-02\", \"email\": [\"jd@example.com\", \"jd@example.org\"], \"details\": [{ \"contactDetails\": \"Some contact details\" }, { \"contactDetails\": \"Some contact details\" }, { \"hello\": \"there!\", \"contactDetails\": \"Some contact details\" }], \"emergencyContacts\": [{ \"name\": \"Jane Doe\", \"phone\": \"888-555-1212\", \"relationship\": \"spouse\" }, { \"name\": \"Justin Doe\", \"phone\": \"877-123-1212\", \"relationship\": \"parent\" }] }, { \"id\": 12345, \"contactName\": \"John Doe\", \"phones\": { \"home\": \"800-123-4567\", \"mobile\": \"877-123-1234\" }, \"creationDate\": \"1980-01-02\", \"email\": [\"jd@example.com\", \"jd@example.org\"], \"details\": [{ \"contactDetails\": \"Some contact details\" }, { \"contactDetails\": \"Some contact details\" }, { \"hello\": \"there!\", \"contactDetails\": \"Some contact details\" }], \"emergencyContacts\": [{ \"name\": \"Jane Doe\", \"phone\": \"888-555-1212\", \"relationship\": \"spouse\" }, { \"name\": \"Justin Doe\", \"phone\": \"877-123-1212\", \"relationship\": \"parent\" }] }], \"layout\": [{ \"layoutNumber\": 21, \"someOtherProperty\": [{ \"name\": \"Michael\" }, { \"name\": \"Michael\" }] }, { \"layoutNumber\": 21, \"someOtherProperty\": [{ \"name\": \"Michael\" }, { \"name\": \"Michael\" }] }] }"
-    val gson = Gson()
+    val defaultCustomerMap = mapOf(
+            "customerNumber" to 1,
+            "doubleCustomerNumber" to 2.02,
+            "unknownProperty" to 12,
+            "balance" to 123,
+            "demo" to true,
+            "customerContact" to arrayListOf(
+                    mapOf(
+                            "id" to 12345,
+                            "contactName" to "John Doe",
+                            "phones" to mapOf(
+                                    "home" to "800-123-4567",
+                                    "mobile" to "877-123-1234"
+                            ),
+                            "creationDate" to "1980-01-02",
+                            "email" to arrayListOf(
+                                    "jd@example.com",
+                                    "jd@example.org"
+                            ),
+                            "details" to arrayListOf(
+                                    mapOf(
+                                            "contactDetails" to "Some contact details"
+                                    ),
+                                    mapOf(
+                                            "contactDetails" to "Some contact details"
+                                    ),
+                                    mapOf(
+                                            "contactDetails" to "Some contact details",
+                                            "hello" to "there!"
+                                    )
+                            ),
+                            "emergencyContacts" to arrayListOf(
+                                    mapOf(
+                                            "name" to "Jane Doe",
+                                            "phone" to "888-555-1212",
+                                            "relationship" to "spouse"
+                                    ),
+                                    mapOf(
+                                            "name" to "Justin Doe",
+                                            "phone" to "877-123-1212",
+                                            "relationship" to "parent"
+                                    )
+                            )
+                    ),
+                    mapOf(
+                            "id" to 12345,
+                            "contactName" to "John Doe",
+                            "phones" to mapOf(
+                                    "home" to "800-123-4567",
+                                    "mobile" to "877-123-1234"
+                            ),
+                            "creationDate" to "1980-01-02",
+                            "email" to arrayListOf(
+                                    "jd@example.com",
+                                    "jd@example.org"
+                            ),
+                            "details" to arrayListOf(
+                                    mapOf(
+                                            "contactDetails" to "Some contact details"
+                                    ),
+                                    mapOf(
+                                            "contactDetails" to "Some contact details"
+                                    ),
+                                    mapOf(
+                                            "contactDetails" to "Some contact details",
+                                            "hello" to "there!"
+                                    )
+                            ),
+                            "emergencyContacts" to arrayListOf(
+                                    mapOf(
+                                            "name" to "Jane Doe",
+                                            "phone" to "888-555-1212",
+                                            "relationship" to "spouse"
+                                    ),
+                                    mapOf(
+                                            "name" to "Justin Doe",
+                                            "phone" to "877-123-1212",
+                                            "relationship" to "parent"
+                                    )
+                            )
+                    )
+            ),
+            "layout" to arrayListOf(
+                    mapOf(
+                            "layoutNumber" to 21,
+                            "someOtherProperty" to arrayListOf(
+                                    mapOf(
+                                            "name" to "Michael"
+                                    ),
+                                    mapOf(
+                                            "name" to "Michael"
+                                    )
+                            )
+                    ),
+                    mapOf(
+                            "layoutNumber" to 21,
+                            "someOtherProperty" to arrayListOf(
+                                    mapOf(
+                                            "name" to "Michael"
+                                    ),
+                                    mapOf(
+                                            "name" to "Michael"
+                                    )
+                            )
+                    )
+            )
+    )
+    val gson: Gson = GsonBuilder().setDateFormat("yyyy-MM-dd").create()
 
     fun testReadComplexJson() {
         val customer = gson.create<Customer>(defaultCustomerJson)
@@ -60,7 +170,7 @@ class PersistModelTest : TestCase() {
     }
 
     fun testJsonToModelToJsonConversionShouldBeSame() {
-        val customer = gson.create<Customer>(defaultCustomerJson)
+        val customer = gson.create<Customer>(gson.toJson(defaultCustomerMap))
         val json = gson.toJson(customer)
         val customer2 = gson.create<Customer>(json)
         Assert.assertEquals(customer, customer2)
@@ -69,13 +179,48 @@ class PersistModelTest : TestCase() {
     fun testOverwritingProperty() {
         val customer = gson.create<Customer>(defaultCustomerJson)
 
-        customer?.customerContact = listOf(CustomerContact(contactName = "Some guy"))
-        customer?.doubleCustomerNumber = 2.0
+        customer?.customerContact = listOf(CustomerContact(contactName = "Some Guy"))
+        customer?.doubleCustomerNumber = 2.021421241
 
-        val expectedJson = "{\"customerNumber\":1,\"doubleCustomerNumber\":2.0,\"customerContact\":[{\"contactName\":\"Some guy\"}],\"unknownProperty\":12,\"balance\":123,\"demo\":true,\"layout\":[{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]},{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]}]}"
-        val json = gson.toJson(customer)
+        val expectedCustomerMap = mapOf(
+                "customerNumber" to 1,
+                "doubleCustomerNumber" to 2.021421241,
+                "unknownProperty" to 12,
+                "balance" to 123,
+                "demo" to true,
+                "customerContact" to arrayListOf(
+                        mapOf(
+                                "contactName" to "Some Guy"
+                        )
+                ),
+                "layout" to arrayListOf(
+                        mapOf(
+                                "layoutNumber" to 21,
+                                "someOtherProperty" to arrayListOf(
+                                        mapOf(
+                                                "name" to "Michael"
+                                        ),
+                                        mapOf(
+                                                "name" to "Michael"
+                                        )
+                                )
+                        ),
+                        mapOf(
+                                "layoutNumber" to 21,
+                                "someOtherProperty" to arrayListOf(
+                                        mapOf(
+                                                "name" to "Michael"
+                                        ),
+                                        mapOf(
+                                                "name" to "Michael"
+                                        )
+                                )
+                        )
+                )
+        )
 
-        Assert.assertEquals(expectedJson, json)
+        val jsonMap = gson.create<Map<String, Any>>(gson.toJson(customer))
+        Assert.assertEquals(expectedCustomerMap, jsonMap)
     }
 
     fun testNestedUnknownPropertyShouldBePresent() {
@@ -91,10 +236,40 @@ class PersistModelTest : TestCase() {
 
         customer?.customerContact = null
 
-        val expectedJson = "{\"customerNumber\":1,\"doubleCustomerNumber\":2.02,\"unknownProperty\":12,\"balance\":123,\"demo\":true,\"layout\":[{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]},{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]}]}"
-        val json = gson.toJson(customer)
+        val expectedCustomerMap = mapOf(
+                "customerNumber" to 1,
+                "doubleCustomerNumber" to 2.02,
+                "unknownProperty" to 12,
+                "balance" to 123,
+                "demo" to true,
+                "layout" to arrayListOf(
+                        mapOf(
+                                "layoutNumber" to 21,
+                                "someOtherProperty" to arrayListOf(
+                                        mapOf(
+                                                "name" to "Michael"
+                                        ),
+                                        mapOf(
+                                                "name" to "Michael"
+                                        )
+                                )
+                        ),
+                        mapOf(
+                                "layoutNumber" to 21,
+                                "someOtherProperty" to arrayListOf(
+                                        mapOf(
+                                                "name" to "Michael"
+                                        ),
+                                        mapOf(
+                                                "name" to "Michael"
+                                        )
+                                )
+                        )
+                )
+        )
 
-        Assert.assertEquals(expectedJson, json)
+        val jsonMap = gson.create<Map<String, Any>>(gson.toJson(customer))
+        Assert.assertEquals(expectedCustomerMap, jsonMap)
     }
 
     fun testOverwriteNestedProperty() {
@@ -102,10 +277,124 @@ class PersistModelTest : TestCase() {
 
         customer?.customerContact = customer?.customerContact?.plus(CustomerContact(details = listOf(ContactDetails(contactInfo = "nothing"))))
 
-        val expectedJson = "{\"customerNumber\":1,\"doubleCustomerNumber\":2.02,\"customerContact\":[{\"contactName\":\"John Doe\",\"details\":[{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\",\"hello\":\"there!\"}],\"id\":12345,\"phones\":{\"home\":\"800-123-4567\",\"mobile\":\"877-123-1234\"},\"creationDate\":\"1980-01-02\",\"email\":[\"jd@example.com\",\"jd@example.org\"],\"emergencyContacts\":[{\"name\":\"Jane Doe\",\"phone\":\"888-555-1212\",\"relationship\":\"spouse\"},{\"name\":\"Justin Doe\",\"phone\":\"877-123-1212\",\"relationship\":\"parent\"}]},{\"contactName\":\"John Doe\",\"details\":[{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\"},{\"contactDetails\":\"Some contact details\",\"hello\":\"there!\"}],\"id\":12345,\"phones\":{\"home\":\"800-123-4567\",\"mobile\":\"877-123-1234\"},\"creationDate\":\"1980-01-02\",\"email\":[\"jd@example.com\",\"jd@example.org\"],\"emergencyContacts\":[{\"name\":\"Jane Doe\",\"phone\":\"888-555-1212\",\"relationship\":\"spouse\"},{\"name\":\"Justin Doe\",\"phone\":\"877-123-1212\",\"relationship\":\"parent\"}]},{\"contactName\":\"Generic Name\",\"details\":[{\"contactDetails\":\"nothing\"}]}],\"unknownProperty\":12,\"balance\":123,\"demo\":true,\"layout\":[{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]},{\"layoutNumber\":21,\"someOtherProperty\":[{\"name\":\"Michael\"},{\"name\":\"Michael\"}]}]}"
-        val json = gson.toJson(customer)
+        val expectedCustomerMap = mapOf(
+                "customerNumber" to 1,
+                "doubleCustomerNumber" to 2.02,
+                "unknownProperty" to 12,
+                "balance" to 123,
+                "demo" to true,
+                "customerContact" to arrayListOf(
+                        mapOf(
+                                "id" to 12345,
+                                "contactName" to "John Doe",
+                                "phones" to mapOf(
+                                        "home" to "800-123-4567",
+                                        "mobile" to "877-123-1234"
+                                ),
+                                "creationDate" to "1980-01-02",
+                                "email" to arrayListOf(
+                                        "jd@example.com",
+                                        "jd@example.org"
+                                ),
+                                "details" to arrayListOf(
+                                        mapOf(
+                                                "contactDetails" to "Some contact details"
+                                        ),
+                                        mapOf(
+                                                "contactDetails" to "Some contact details"
+                                        ),
+                                        mapOf(
+                                                "contactDetails" to "Some contact details",
+                                                "hello" to "there!"
+                                        )
+                                ),
+                                "emergencyContacts" to arrayListOf(
+                                        mapOf(
+                                                "name" to "Jane Doe",
+                                                "phone" to "888-555-1212",
+                                                "relationship" to "spouse"
+                                        ),
+                                        mapOf(
+                                                "name" to "Justin Doe",
+                                                "phone" to "877-123-1212",
+                                                "relationship" to "parent"
+                                        )
+                                )
+                        ),
+                        mapOf(
+                                "id" to 12345,
+                                "contactName" to "John Doe",
+                                "phones" to mapOf(
+                                        "home" to "800-123-4567",
+                                        "mobile" to "877-123-1234"
+                                ),
+                                "creationDate" to "1980-01-02",
+                                "email" to arrayListOf(
+                                        "jd@example.com",
+                                        "jd@example.org"
+                                ),
+                                "details" to arrayListOf(
+                                        mapOf(
+                                                "contactDetails" to "Some contact details"
+                                        ),
+                                        mapOf(
+                                                "contactDetails" to "Some contact details"
+                                        ),
+                                        mapOf(
+                                                "contactDetails" to "Some contact details",
+                                                "hello" to "there!"
+                                        )
+                                ),
+                                "emergencyContacts" to arrayListOf(
+                                        mapOf(
+                                                "name" to "Jane Doe",
+                                                "phone" to "888-555-1212",
+                                                "relationship" to "spouse"
+                                        ),
+                                        mapOf(
+                                                "name" to "Justin Doe",
+                                                "phone" to "877-123-1212",
+                                                "relationship" to "parent"
+                                        )
+                                )
+                        ),
+                        mapOf(
+                                "contactName" to "Generic Name",
+                                "details" to arrayListOf(
+                                        mapOf(
+                                                "contactDetails" to "nothing"
+                                        )
+                                )
+                        )
+                ),
+                "layout" to arrayListOf(
+                        mapOf(
+                                "layoutNumber" to 21,
+                                "someOtherProperty" to arrayListOf(
+                                        mapOf(
+                                                "name" to "Michael"
+                                        ),
+                                        mapOf(
+                                                "name" to "Michael"
+                                        )
+                                )
+                        ),
+                        mapOf(
+                                "layoutNumber" to 21,
+                                "someOtherProperty" to arrayListOf(
+                                        mapOf(
+                                                "name" to "Michael"
+                                        ),
+                                        mapOf(
+                                                "name" to "Michael"
+                                        )
+                                )
+                        )
+                )
+        )
 
-        Assert.assertEquals(expectedJson, json)
+        val jsonMap = gson.create<Map<String, Any>>(gson.toJson(customer))
+        Assert.assertEquals(expectedCustomerMap, jsonMap)
     }
 
     fun testSerializedNameAnnotationWhenJsonAndObjectPropertiesMatch() {
