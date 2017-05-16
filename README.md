@@ -10,7 +10,4 @@ https://github.com/google/gson
 ## Important information
 
 This repo is a fork of [Google's Gson](https://github.com/google/gson) library. The library has 
-been modified to provide persist functionality for our models. The library is being used in the 
-[econ-android-foundation](https://github.com/e-conomic/econ-android-foundation). Because we have
-added Kotlin files in the library, the `kotlin` compiler is needed to build the current version of 
-the library. 
+been modified to provide persist functionality for PersistObject models.
